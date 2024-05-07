@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Login"
+    android:background="@color/young_blue">
+
+    <TextView
+        android:id="@+id/tekslogin"
+        android:layout_marginTop="54dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/header_text"
+        android:textSize="20sp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:fontFamily="sans-serif-black"
+        android:layout_centerHorizontal="true" />
+
+    <EditText
+        android:id="@+id/editekuser"
+        android:textColor="@color/black"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tekslogin"
+        android:layout_marginTop="54dp"
+        android:hint="@string/hint_username"
+        android:textColorHint="@color/grey"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:drawableLeft="@drawable/baseline_person_outline_24"
+        android:background="@drawable/rounded_corner"
+        android:drawablePadding="15dp"
+        android:inputType="text"
+        android:minHeight="48dp"
+        android:paddingHorizontal="15dp" />
+
+    <EditText
+        android:id="@+id/editekpassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/editekuser"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:background="@drawable/rounded_corner"
+        android:hint="@string/hint_password"
+        android:textColorHint="@color/grey"
+        android:inputType="textPassword"
+        android:textColor="@color/black"
+        android:minHeight="48dp"
+        android:paddingHorizontal="15dp"
+        android:drawableLeft="@drawable/baseline_lock_24"
+        android:drawablePadding="15dp"/>
+
+    <Button
+        android:id="@+id/tombollogin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/editekpassword"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="40dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="40dp"
+        android:background="@drawable/button_rounded_corner"
+        android:paddingLeft="80dp"
+        android:paddingRight="80dp"
+        android:text="@string/text_button"
+        android:fontFamily="sans-serif-black"
+        android:textColor="@color/black"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/textViewBottomCenter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:textColor="@color/black"
+        android:layout_marginBottom="16dp"
+        android:textSize="16sp"
+        android:textStyle="italic"
+        android:text="Develop by: Yusnar Setiyadi"
+        android:layout_gravity="center_horizontal" />
+
+</RelativeLayout>
