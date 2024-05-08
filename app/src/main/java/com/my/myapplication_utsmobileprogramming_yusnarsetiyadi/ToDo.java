@@ -121,6 +121,15 @@ public class ToDo extends AppCompatActivity {
                 return true;
             }
         });
+        textView.setTextSize(20);
+        textView.setTypeface(null, Typeface.BOLD);
+        Drawable leftDrawable = ContextCompat.getDrawable(this, R.drawable.baseline_task_alt_24);
+        if (leftDrawable != null) {
+            leftDrawable.setBounds(0, 0, leftDrawable.getIntrinsicWidth(), leftDrawable.getIntrinsicHeight());
+            textView.setCompoundDrawables(leftDrawable, null, null, null);
+            textView.setCompoundDrawablePadding(getResources().getDimensionPixelOffset(R.dimen.drawable_padding));
+        }
+        textView.setTextColor(Color.WHITE);
         taskListLayout.addView(textView);
 
         saveTasks();
