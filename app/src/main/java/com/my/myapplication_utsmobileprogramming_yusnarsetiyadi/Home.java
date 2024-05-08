@@ -134,7 +134,7 @@ public class Home extends AppCompatActivity {
                     setDrawableLeft(R.drawable.baseline_menu_24);
                     Toast.makeText(getApplicationContext(),
                             "successfully logout", Toast.LENGTH_LONG).show();
-                    editor.clear();
+                    editor.remove("username");
                     editor.apply();
                     Intent intent = new Intent(Home.this, Login.class);
                     Home.this.startActivity(intent);

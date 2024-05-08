@@ -25,6 +25,15 @@ public class Login extends AppCompatActivity {
         sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         editor = sharedPreferences.edit();
 
+        if (sharedPreferences.contains("username")) {
+            String savedUsername = sharedPreferences.getString("username", "");
+            if (!savedUsername.isEmpty()) {
+                Intent intent = new Intent(Login.this, Home.class);
+                startActivity(intent);
+                finish();
+            }
+        }
+
         editTextPassword = findViewById(R.id.editekpassword);
         buttonShowHidePassword = findViewById(R.id.buttonShowHidePassword);
 
