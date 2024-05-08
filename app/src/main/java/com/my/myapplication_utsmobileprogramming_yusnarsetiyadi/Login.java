@@ -2,7 +2,9 @@ package com.my.myapplication_utsmobileprogramming_yusnarsetiyadi;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -10,13 +12,32 @@ import android.os.Bundle;
 
 public class Login extends AppCompatActivity {
 
-    EditText username, password;
-    Button btnlogin;
+    EditText username, password,editTextPassword;
+    Button btnlogin,buttonShowHidePassword;
     String keynama, keypass;
-
+    private boolean isPasswordVisible = false;
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        editor = sharedPreferences.edit();
+
+        editTextPassword = findViewById(R.id.editekpassword);
+        buttonShowHidePassword = findViewById(R.id.buttonShowHidePassword);
+
+        buttonShowHidePassword.setOnClickListener(view->{
+            if (isPasswordVisible) {
+                editTextPassword.setInputType(editTextPassword.getInputType() | 0x00000001);
+                isPasswordVisible = false;
+            } else {
+                editTextPassword.setInputType(editTextPassword.getInputType() & ~0x00000001);
+                isPasswordVisible = true;
+            }
+            editTextPassword.setSelection(editTextPassword.getText().length());
+        });
 
         btnlogin = findViewById(R.id.tombollogin);
         btnlogin.setOnClickListener(view -> {
@@ -29,29 +50,26 @@ public class Login extends AppCompatActivity {
             keypass = password.getText().toString();
 
             if (keynama.equals("")||keypass.equals("")){
-                // jika field masih kosong
                 AlertDialog.Builder builder = new AlertDialog.Builder(Login.this);
                 builder.setMessage
-                        ("Username atau password tidak boleh kosong").setNegativeButton
-                        ("ulangi", null).create().show();
+                        ("username or password cannot be empty").setNegativeButton
+                        ("repeat", null).create().show();
 
                 username.setText("");
                 password.setText("");
-            } else if (keynama.equals("YusnarSetiyadi") && keypass.equals("password")) {
-                //jika login berhasil
+            } else if (keynama.equals("admin") && keypass.equals("admin")) {
                 Toast.makeText(getApplicationContext(),
-                        "LOGIN BERHASIL", Toast.LENGTH_LONG).show();
-
+                        "successfully login", Toast.LENGTH_LONG).show();
+                editor.putString("username", keynama);
+                editor.apply();
                 Intent intent = new Intent(Login.this, Home.class);
-                intent.putExtra("username",keynama);
                 Login.this.startActivity(intent);
                 finish();
-            } else {
-                //jika login gagal
+            }else {
                 AlertDialog.Builder builder = new AlertDialog.Builder(Login.this);
                 builder.setMessage
-                        ("Username atau password salah").setNegativeButton
-                        ("ulangi", null).create().show();
+                        ("incorrect username or password").setNegativeButton
+                        ("repeat", null).create().show();
 
                 username.setText("");
                 password.setText("");

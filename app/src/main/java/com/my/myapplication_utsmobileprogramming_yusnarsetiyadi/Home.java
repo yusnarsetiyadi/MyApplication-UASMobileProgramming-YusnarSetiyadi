@@ -1,12 +1,16 @@
 package com.my.myapplication_utsmobileprogramming_yusnarsetiyadi;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.location.Location;
@@ -16,6 +20,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.graphics.drawable.Drawable;
@@ -30,37 +35,61 @@ public class Home extends AppCompatActivity {
 
     private TextView dropdownTitle;
     private ListView dropdownListView;
-    private ArrayAdapter<String> adapter;
     private static final int ACTIVITY_REQUEST_CODE = 1000;
     private static final int PERMISSION_REQUEST_CODE = 2000;
     private static final int REQUEST_LOCATION = 1;
     LocationManager locationManager;
     String latitude, longitude;
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        editor = sharedPreferences.edit();
+
+        String username = sharedPreferences.getString("username", "");
+
+        if (username != null) {
+            TextView usernameTextView = findViewById(R.id.tekshome);
+            if(username.equals("admin")){
+                username="Yusnar Setiyadi";
+            }else{
+                username="Guest";
+            }
+            usernameTextView.setText("Hello, " + username);
+        }
+
         dropdownTitle = findViewById(R.id.dropdownTitle);
         dropdownListView = findViewById(R.id.dropdownListView);
 
-        String[] items = {"Home", "About", "Contact","Camera","Maps"};
-
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items);
+        String[] items = {"Home", "About", "Contact", "ToDo", "Camera", "Maps", "Logout"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items) {
+            @NonNull
+            @Override
+            public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                TextView textView = (TextView) view.findViewById(android.R.id.text1);
+                textView.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_END);
+                return view;
+            }
+        };
         dropdownListView.setAdapter(adapter);
 
         dropdownListView.setVisibility(View.GONE);
-        setDrawableLeft(R.drawable.baseline_keyboard_arrow_right_24);
+        setDrawableLeft(R.drawable.baseline_menu_24);
 
         dropdownTitle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (dropdownListView.getVisibility() == View.VISIBLE) {
                     dropdownListView.setVisibility(View.GONE);
-                    setDrawableLeft(R.drawable.baseline_keyboard_arrow_right_24);
+                    setDrawableLeft(R.drawable.baseline_menu_24);
                 } else {
                     dropdownListView.setVisibility(View.VISIBLE);
-                    setDrawableLeft(R.drawable.baseline_keyboard_arrow_down_24);
+                    setDrawableLeft(R.drawable.baseline_close_24);
                 }
             }
         });
@@ -69,27 +98,50 @@ public class Home extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String selectedItem = adapter.getItem(position);
-                if (selectedItem=="Camera"){
+                if(selectedItem=="Home"){
                     dropdownListView.setVisibility(View.GONE);
-                    setDrawableLeft(R.drawable.baseline_keyboard_arrow_right_24);
+                    setDrawableLeft(R.drawable.baseline_menu_24);
+                    Toast.makeText(getApplicationContext(),
+                            "Home", Toast.LENGTH_LONG).show();
+                }else if (selectedItem=="About"){
+                    dropdownListView.setVisibility(View.GONE);
+                    setDrawableLeft(R.drawable.baseline_menu_24);
+                    Intent intent = new Intent(Home.this, About.class);
+                    Home.this.startActivity(intent);
+                    finish();
+                }else if (selectedItem=="Contact"){
+                    dropdownListView.setVisibility(View.GONE);
+                    setDrawableLeft(R.drawable.baseline_menu_24);
+                    Intent intent = new Intent(Home.this, Contact.class);
+                    Home.this.startActivity(intent);
+                    finish();
+                }else if (selectedItem=="ToDo"){
+                    dropdownListView.setVisibility(View.GONE);
+                    setDrawableLeft(R.drawable.baseline_menu_24);
+                    Intent intent = new Intent(Home.this, ToDo.class);
+                    Home.this.startActivity(intent);
+                    finish();
+                }else if (selectedItem=="Camera"){
+                    dropdownListView.setVisibility(View.GONE);
+                    setDrawableLeft(R.drawable.baseline_menu_24);
                     checkPermissionAndOpenCamera();
                 }else if (selectedItem=="Maps"){
                     dropdownListView.setVisibility(View.GONE);
-                    setDrawableLeft(R.drawable.baseline_keyboard_arrow_right_24);
+                    setDrawableLeft(R.drawable.baseline_menu_24);
                     checkPermissionAndOpenMaps();
-//                    openInputDialogMaps();
-                }else{
-                    Toast.makeText(Home.this, selectedItem,Toast.LENGTH_SHORT).show();
+                }else if (selectedItem=="Logout"){
+                    dropdownListView.setVisibility(View.GONE);
+                    setDrawableLeft(R.drawable.baseline_menu_24);
+                    Toast.makeText(getApplicationContext(),
+                            "successfully logout", Toast.LENGTH_LONG).show();
+                    editor.clear();
+                    editor.apply();
+                    Intent intent = new Intent(Home.this, Login.class);
+                    Home.this.startActivity(intent);
+                    finish();
                 }
             }
         });
-
-        String username = getIntent().getStringExtra("username");
-
-        if (username != null) {
-            TextView usernameTextView = findViewById(R.id.tekshome);
-            usernameTextView.setText("Hello, " + username);
-        }
     }
 
     private void checkPermissionAndOpenCamera() {
@@ -157,9 +209,20 @@ public class Home extends AppCompatActivity {
         if (requestCode == ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
             Bitmap capturedImage = (Bitmap) data.getExtras().get("data");
             if (capturedImage != null) {
-                Toast.makeText(Home.this, "Berhasil mengambil gambar!", Toast.LENGTH_SHORT).show();
-                ImageView imageView = findViewById(R.id.imageView);
+                AlertDialog.Builder builder = new AlertDialog.Builder(Home.this);
+                LayoutInflater inflater = getLayoutInflater();
+                View dialogView = inflater.inflate(R.layout.dialog_image_preview, null);
+                ImageView imageView = dialogView.findViewById(R.id.dialogImageView);
                 imageView.setImageBitmap(capturedImage);
+                builder.setView(dialogView)
+                        .setTitle("Image Preview")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                            }
+                        });
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
             } else {
                 Toast.makeText(Home.this, "Gagal mengambil gambar!", Toast.LENGTH_SHORT).show();
             }

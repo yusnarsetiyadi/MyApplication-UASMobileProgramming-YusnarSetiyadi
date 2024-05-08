@@ -5,18 +5,31 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Home"
-    android:background="@color/young_blue">
+    android:background="@drawable/green_blue_gradient">
 
     <TextView
-        android:id="@+id/dropdownTitle"
-        android:drawableLeft="@drawable/baseline_keyboard_arrow_right_24"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Choose Menu"
+        android:id="@+id/tekshome"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
         android:layout_marginStart="16dp"
-        android:textColor="@color/black"/>
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="example"
+        android:textSize="16sp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:fontFamily="sans-serif-black" />
+
+    <TextView
+        android:id="@+id/dropdownTitle"
+        android:drawableLeft="@drawable/baseline_menu_24"
+        android:layout_marginTop="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:layout_alignParentEnd="true"
+        android:gravity="right"/>
 
     <ListView
         android:id="@+id/dropdownListView"
@@ -24,34 +37,20 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/dropdownTitle"
         android:visibility="gone"
-        android:background="@color/young_blue"
+        android:background="#00FFFFFF"
         android:elevation="4dp"
-        android:layout_marginRight="150dp"
-        android:layout_marginLeft="30dp"
+        android:layout_marginLeft="150dp"
+        android:layout_marginRight="10dp"
         android:padding="8dp"/>
 
     <TextView
-        android:id="@+id/tekshome"
-        android:layout_marginTop="15dp"
-        android:layout_marginRight="15dp"
+        android:id="@+id/homebg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="16sp"
-        android:textColor="@color/black"
-        android:textStyle="bold"
-        android:gravity="right"
-        android:fontFamily="sans-serif-black"
-        android:layout_alignParentEnd="true" />
-
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/imageView"
-        android:layout_weight="1"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp" />
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal"
+        android:background="@mipmap/ic_launcher_round"/>
 
     <TextView
         android:id="@+id/textViewBottomCenter"
@@ -59,10 +58,10 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         android:layout_marginBottom="16dp"
         android:textSize="16sp"
-        android:textStyle="italic"
+        android:textStyle="bold|italic"
         android:text="Develop by: Yusnar Setiyadi"
         android:layout_gravity="center_horizontal" />
 

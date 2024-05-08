@@ -1,8 +1,8 @@
 <resources>
-    <string name="app_name">My Application</string>
-    <string name="header_text">Login User</string>
-    <string name="hint_username">Input Username</string>
-    <string name="hint_password">Input Password</string>
-    <string name="text_button">LOGIN</string>
+    <string name="app_name">My Application - UTS Mobile Programming - Yusnar Setiyadi</string>
+    <string name="header_text">Welcome,</string>
+    <string name="hint_username">Username</string>
+    <string name="hint_password">Password</string>
+    <string name="text_button">Login</string>
     <string name="select">Choose Menu</string>
 </resources>
