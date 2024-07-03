@@ -14,19 +14,24 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.graphics.drawable.Drawable;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -37,18 +42,21 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class Home extends AppCompatActivity {
 
-    private TextView dropdownTitle, textAbout;
+    private TextView dropdownTitle, textAbout, selectedTask;
     private ListView dropdownListView;
+    private Button addButton, guideButton;
     private static final int ACTIVITY_REQUEST_CODE = 1000;
     private static final int PERMISSION_REQUEST_CODE = 2000;
     private static final int REQUEST_LOCATION = 1;
-    LocationManager locationManager;
-    String latitude, longitude;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
     private FusedLocationProviderClient fusedLocationClient;
+    private LinearLayout taskListLayout;
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,7 +91,7 @@ public class Home extends AppCompatActivity {
         dropdownTitle = findViewById(R.id.dropdownTitle);
         dropdownListView = findViewById(R.id.dropdownListView);
 
-        String[] items = {"Home", "About", "ToDo", "Camera", "Maps", "Logout"};
+        String[] items = {"Cam", "Maps", "Logout"};
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items) {
             @NonNull
             @Override
@@ -91,11 +99,11 @@ public class Home extends AppCompatActivity {
                 View view = super.getView(position, convertView, parent);
                 TextView textView = (TextView) view.findViewById(android.R.id.text1);
                 textView.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_END);
+                textView.setTextColor(Color.BLACK);
                 return view;
             }
         };
         dropdownListView.setAdapter(adapter);
-
         dropdownListView.setVisibility(View.GONE);
         setDrawableLeft(R.drawable.baseline_menu_24);
 
@@ -116,24 +124,7 @@ public class Home extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String selectedItem = adapter.getItem(position);
-                if(selectedItem=="Home"){
-                    dropdownListView.setVisibility(View.GONE);
-                    setDrawableLeft(R.drawable.baseline_menu_24);
-                    Toast.makeText(getApplicationContext(),
-                            "Home", Toast.LENGTH_LONG).show();
-                }else if (selectedItem=="About"){
-                    dropdownListView.setVisibility(View.GONE);
-                    setDrawableLeft(R.drawable.baseline_menu_24);
-                    Intent intent = new Intent(Home.this, About.class);
-                    Home.this.startActivity(intent);
-                    finish();
-                }else if (selectedItem=="ToDo"){
-                    dropdownListView.setVisibility(View.GONE);
-                    setDrawableLeft(R.drawable.baseline_menu_24);
-                    Intent intent = new Intent(Home.this, ToDo.class);
-                    Home.this.startActivity(intent);
-                    finish();
-                }else if (selectedItem=="Camera"){
+                if (selectedItem=="Cam"){
                     dropdownListView.setVisibility(View.GONE);
                     setDrawableLeft(R.drawable.baseline_menu_24);
                     checkPermissionAndOpenCamera();
@@ -152,6 +143,30 @@ public class Home extends AppCompatActivity {
                     Home.this.startActivity(intent);
                     finish();
                 }
+            }
+        });
+
+        guideButton = findViewById(R.id.guide);
+        guideButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(Home.this);
+                builder.setMessage
+                        ("Button Add to add, Click task to edit, and Hold task to delete.").setNegativeButton
+                        ("ok", null).create().show();
+            }
+        });
+
+        addButton = findViewById(R.id.add_button);
+        taskListLayout = findViewById(R.id.task_list_layout);
+        sharedPreferences = getSharedPreferences("MyTasks", Context.MODE_PRIVATE);
+
+        loadTasks();
+
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showAddTaskDialog();
             }
         });
     }
@@ -237,9 +252,17 @@ public class Home extends AppCompatActivity {
                 imageView.setImageBitmap(capturedImage);
                 builder.setView(dialogView)
                         .setTitle("Image Preview")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        .setNegativeButton("Save", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
+                                saveImageToStorage(capturedImage);
+                                Toast.makeText(Home.this, "Image saved successfully", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
                             }
                         });
                 AlertDialog alertDialog = builder.create();
@@ -271,5 +294,145 @@ public class Home extends AppCompatActivity {
         Drawable drawable = getResources().getDrawable(drawableRes);
         drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
         dropdownTitle.setCompoundDrawables(drawable, null, null, null);
+    }
+
+    private void saveImageToStorage(Bitmap bitmap) {
+        // Save image to gallery or specific directory
+        String savedImageURL = MediaStore.Images.Media.insertImage(
+                getContentResolver(),
+                bitmap,
+                "Image_" + System.currentTimeMillis(),
+                "Image saved from My Application - UAS Mobile Programming - Yusnar Setiyadi"
+        );
+
+        // Show a toast message with the saved image URL or status
+        if (savedImageURL != null) {
+            Log.d("Save Image", "Image saved to: " + savedImageURL);
+        } else {
+            Log.d("Save Image", "Failed to save image.");
+        }
+    }
+
+    private void showAddTaskDialog() {
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View dialogView = inflater.inflate(R.layout.dialog_add_task, null);
+        EditText taskInput = dialogView.findViewById(R.id.task_input);
+        Button saveButton = dialogView.findViewById(R.id.save_button);
+
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+        builder.setView(dialogView);
+        android.app.AlertDialog dialog = builder.create();
+        dialog.show();
+
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String task = taskInput.getText().toString().trim();
+                if (!task.isEmpty()) {
+                    if (selectedTask != null) {
+                        // Update task
+                        selectedTask.setText(task);
+                        selectedTask = null; // Reset selectedTask
+                    } else {
+                        // Add new task
+                        addTask(task);
+                    }
+                    dialog.dismiss(); // Close the dialog
+                } else {
+                    Toast.makeText(Home.this, "Please enter a task", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void addTask(String task) {
+        TextView textView = new TextView(this);
+        textView.setText(task);
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                selectedTask = (TextView) v;
+                showAddTaskDialog();
+            }
+        });
+        textView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                taskListLayout.removeView(v);
+                saveTasks();
+                return true;
+            }
+        });
+        textView.setTextSize(20);
+        textView.setTypeface(null, Typeface.BOLD);
+        Drawable leftDrawable = ContextCompat.getDrawable(this, R.drawable.baseline_task_alt_24);
+        if (leftDrawable != null) {
+            leftDrawable.setBounds(0, 0, leftDrawable.getIntrinsicWidth(), leftDrawable.getIntrinsicHeight());
+            textView.setCompoundDrawables(leftDrawable, null, null, null);
+            textView.setCompoundDrawablePadding(getResources().getDimensionPixelOffset(R.dimen.drawable_padding));
+        }
+        textView.setTextColor(Color.WHITE);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        params.bottomMargin = 50;
+        textView.setLayoutParams(params);
+        taskListLayout.addView(textView);
+
+        saveTasks();
+    }
+
+    private void saveTasks() {
+        Set<String> taskSet = new HashSet<>();
+        for (int i = 0; i < taskListLayout.getChildCount(); i++) {
+            View view = taskListLayout.getChildAt(i);
+            if (view instanceof TextView) {
+                TextView textView = (TextView) view;
+                taskSet.add(textView.getText().toString());
+            }
+        }
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putStringSet("tasks", taskSet);
+        editor.apply();
+    }
+
+    private void loadTasks() {
+        Set<String> taskSet = sharedPreferences.getStringSet("tasks", new HashSet<String>());
+        for (String task : taskSet) {
+            TextView textView = new TextView(this);
+            textView.setText(task);
+            textView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    selectedTask = (TextView) v;
+                    showAddTaskDialog();
+                }
+            });
+            textView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    taskListLayout.removeView(v);
+                    saveTasks();
+                    return true;
+                }
+            });
+            textView.setTextSize(20);
+            textView.setTypeface(null, Typeface.BOLD);
+            Drawable leftDrawable = ContextCompat.getDrawable(this, R.drawable.baseline_task_alt_24);
+            if (leftDrawable != null) {
+                leftDrawable.setBounds(0, 0, leftDrawable.getIntrinsicWidth(), leftDrawable.getIntrinsicHeight());
+                textView.setCompoundDrawables(leftDrawable, null, null, null);
+                textView.setCompoundDrawablePadding(getResources().getDimensionPixelOffset(R.dimen.drawable_padding));
+            }
+            textView.setTextColor(Color.WHITE);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            params.bottomMargin = 50;
+            textView.setLayoutParams(params);
+            taskListLayout.addView(textView);
+        }
     }
 }

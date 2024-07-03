@@ -12,7 +12,7 @@
         android:id="@+id/homebg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="40dp"
         android:layout_centerHorizontal="true"
         android:layout_gravity="center_horizontal"
         android:text="About Developer"

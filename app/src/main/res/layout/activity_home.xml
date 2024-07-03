@@ -43,14 +43,45 @@
         android:layout_marginRight="10dp"
         android:padding="8dp"/>
 
-    <TextView
-        android:id="@+id/homebg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        android:layout_gravity="center_horizontal"
-        android:background="@mipmap/ic_launcher_round"/>
+    <Button
+        android:id="@+id/guide"
+        android:layout_width="43dp"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="304dp"
+        android:layout_marginBottom="150dp"
+        android:padding="10dp"
+        android:background="@drawable/button_rounded_corner"
+        android:drawableLeft="@drawable/gear_solid"/>
+
+    <Button
+        android:id="@+id/add_button"
+        android:layout_width="63dp"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="295dp"
+        android:layout_marginBottom="70dp"
+        android:padding="10dp"
+        android:background="@drawable/button_rounded_corner"
+        android:drawableLeft="@drawable/plus_solid"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_below="@id/tekshome"
+        android:layout_marginTop="10dp"
+        android:layout_height="600dp">
+
+        <LinearLayout
+            android:id="@+id/task_list_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tekshome"
+            android:orientation="vertical"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="10dp">
+        </LinearLayout>
+
+    </ScrollView>
 
     <TextView
         android:id="@+id/textAbout"
