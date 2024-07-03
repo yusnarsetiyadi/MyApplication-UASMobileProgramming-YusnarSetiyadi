@@ -12,10 +12,10 @@
         android:id="@+id/homebg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="90dp"
+        android:layout_marginTop="50dp"
         android:layout_centerHorizontal="true"
         android:layout_gravity="center_horizontal"
-        android:text="About Me"
+        android:text="About Developer"
         android:textSize="30sp"
         android:textColor="@color/white"/>
 
@@ -48,7 +48,7 @@ programming algorithms, computational complexity, programming problem solving, s
 relational databases and others. I pay great attention to each of Experience, Architecture, and Code Quality
 the projects I develop as well as unit tests achieve a minimum average coverage of 80%. Looking for a position for
 develop various applications or websites with companies that value creativity, freedom to innovate and focus
-on one goal. \n\nHowever, on this occasion I tried to learn mobile programming using the Java programming language. Thanks for visiting, send me a coffee if you find any bugs."
+on one goal. \n\nHowever, on this occasion I tried to learn mobile programming using the Java programming language. Thanks for visiting, send me a coffee if you find any bugs.\n\nLet's connect with me on:"
         android:textColor="@color/white"
         android:textAlignment="center"
         android:gravity="center"
@@ -56,17 +56,70 @@ on one goal. \n\nHowever, on this occasion I tried to learn mobile programming u
         android:layout_margin="20dp"
         android:paddingEnd="16dp" />
 
-    <TextView
-        android:id="@+id/textViewBottomCenter"
+    <RelativeLayout
+        android:id="@+id/iconRow1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        android:textColor="@color/white"
-        android:layout_marginBottom="16dp"
-        android:textSize="16sp"
-        android:textStyle="bold|italic"
-        android:text="Developed by: Yusnar Setiyadi"
-        android:layout_gravity="center_horizontal" />
+        android:layout_below="@id/textViewCenter">
+
+        <TextView
+            android:id="@+id/wa"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="WhatsApp  "
+            android:drawablePadding="10dp"
+            android:drawableLeft="@drawable/baseline_phone_enabled_24"
+            android:background="@drawable/border_background"
+            android:padding="8dp"
+            android:textColor="@color/white"/>
+
+        <TextView
+            android:id="@+id/linkedin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_toEndOf="@id/wa"
+            android:text="LinkedIn  "
+            android:background="@drawable/border_background"
+            android:drawableLeft="@drawable/baseline_emoji_people_24"
+            android:drawablePadding="10dp"
+            android:padding="8dp"
+            android:textColor="@color/white"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/iconRow2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/iconRow1">
+
+        <TextView
+            android:id="@+id/github"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_toEndOf="@id/gmail"
+            android:text="GitHub  "
+            android:drawableLeft="@drawable/baseline_rocket_launch_24"
+            android:drawablePadding="10dp"
+            android:background="@drawable/border_background"
+            android:padding="8dp"
+            android:textColor="@color/white"/>
+
+        <TextView
+            android:id="@+id/gmail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Gmail  "
+            android:drawableLeft="@drawable/baseline_mail_outline_24"
+            android:drawablePadding="10dp"
+            android:background="@drawable/border_background"
+            android:padding="8dp"
+            android:textColor="@color/white" />
+    </RelativeLayout>
 
 </RelativeLayout>

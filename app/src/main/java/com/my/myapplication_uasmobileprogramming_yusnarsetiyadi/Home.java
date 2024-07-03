@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -38,7 +39,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 
 public class Home extends AppCompatActivity {
 
-    private TextView dropdownTitle;
+    private TextView dropdownTitle, textAbout;
     private ListView dropdownListView;
     private static final int ACTIVITY_REQUEST_CODE = 1000;
     private static final int PERMISSION_REQUEST_CODE = 2000;
@@ -48,6 +49,7 @@ public class Home extends AppCompatActivity {
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
     private FusedLocationProviderClient fusedLocationClient;
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,10 +70,20 @@ public class Home extends AppCompatActivity {
             usernameTextView.setText("Hello, " + username);
         }
 
+        textAbout = findViewById(R.id.textAbout);
+        textAbout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Home.this, About.class);
+                Home.this.startActivity(intent);
+                finish();
+            }
+        });
+
         dropdownTitle = findViewById(R.id.dropdownTitle);
         dropdownListView = findViewById(R.id.dropdownListView);
 
-        String[] items = {"Home", "About", "Contact", "ToDo", "Camera", "Maps", "Logout"};
+        String[] items = {"Home", "About", "ToDo", "Camera", "Maps", "Logout"};
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items) {
             @NonNull
             @Override
@@ -113,12 +125,6 @@ public class Home extends AppCompatActivity {
                     dropdownListView.setVisibility(View.GONE);
                     setDrawableLeft(R.drawable.baseline_menu_24);
                     Intent intent = new Intent(Home.this, About.class);
-                    Home.this.startActivity(intent);
-                    finish();
-                }else if (selectedItem=="Contact"){
-                    dropdownListView.setVisibility(View.GONE);
-                    setDrawableLeft(R.drawable.baseline_menu_24);
-                    Intent intent = new Intent(Home.this, Contact.class);
                     Home.this.startActivity(intent);
                     finish();
                 }else if (selectedItem=="ToDo"){

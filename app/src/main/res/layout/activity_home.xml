@@ -53,7 +53,7 @@
         android:background="@mipmap/ic_launcher_round"/>
 
     <TextView
-        android:id="@+id/textViewBottomCenter"
+        android:id="@+id/textAbout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
@@ -62,7 +62,7 @@
         android:layout_marginBottom="16dp"
         android:textSize="16sp"
         android:textStyle="bold|italic"
-        android:text="Develop by: Yusnar Setiyadi"
+        android:text="@string/about_developer"
         android:layout_gravity="center_horizontal" />
 
 </RelativeLayout>

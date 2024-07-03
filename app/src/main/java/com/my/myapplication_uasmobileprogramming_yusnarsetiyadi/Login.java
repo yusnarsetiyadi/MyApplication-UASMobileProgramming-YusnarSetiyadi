@@ -1,23 +1,30 @@
 package com.my.myapplication_uasmobileprogramming_yusnarsetiyadi;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.os.Bundle;
 
 public class Login extends AppCompatActivity {
 
-    EditText username, password,editTextPassword;
+    EditText username, password, editTextPassword;
+    private TextView textAbout;
     Button btnlogin,buttonShowHidePassword;
     String keynama, keypass;
     private boolean isPasswordVisible = false;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
+    @SuppressLint("MissingInflatedId")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
@@ -34,15 +41,27 @@ public class Login extends AppCompatActivity {
             }
         }
 
+        textAbout = findViewById(R.id.textAbout);
+        textAbout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Login.this, About.class);
+                Login.this.startActivity(intent);
+                finish();
+            }
+        });
+
         editTextPassword = findViewById(R.id.editekpassword);
         buttonShowHidePassword = findViewById(R.id.buttonShowHidePassword);
 
         buttonShowHidePassword.setOnClickListener(view->{
             if (isPasswordVisible) {
                 editTextPassword.setInputType(editTextPassword.getInputType() | 0x00000001);
+                buttonShowHidePassword.setBackgroundResource(R.drawable.eye_solid);
                 isPasswordVisible = false;
             } else {
                 editTextPassword.setInputType(editTextPassword.getInputType() & ~0x00000001);
+                buttonShowHidePassword.setBackgroundResource(R.drawable.eye_slash_solid);
                 isPasswordVisible = true;
             }
             editTextPassword.setSelection(editTextPassword.getText().length());
