@@ -15,7 +15,7 @@
         android:layout_marginTop="40dp"
         android:layout_centerHorizontal="true"
         android:layout_gravity="center_horizontal"
-        android:text="About Developer"
+        android:text="@string/about_developer"
         android:textSize="30sp"
         android:textColor="@color/white"/>
 

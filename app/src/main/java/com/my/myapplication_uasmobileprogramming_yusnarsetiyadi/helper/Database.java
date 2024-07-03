@@ -4,7 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-public class TodoDatabase extends SQLiteOpenHelper {
+public class Database extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "todo.db";
     private static final int DATABASE_VERSION = 1;
     public static final String TABLE_TODO = "todo";
@@ -19,7 +19,7 @@ public class TodoDatabase extends SQLiteOpenHelper {
                     COLUMN_TASK + " TEXT, " +
                     COLUMN_IS_COMPLETED + " INTEGER DEFAULT 0);";
 
-    public TodoDatabase(Context context) {
+    public Database(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 

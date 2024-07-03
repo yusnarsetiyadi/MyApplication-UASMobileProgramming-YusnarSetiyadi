@@ -5,7 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.my.myapplication_uasmobileprogramming_yusnarsetiyadi.helper.TodoDatabase;
+import com.my.myapplication_uasmobileprogramming_yusnarsetiyadi.helper.Database;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,10 +38,10 @@ public class TodoModel {
 
     public static class TodoDAO{
         private SQLiteDatabase db;
-        private TodoDatabase dbTodo;
+        private Database dbTodo;
 
         public TodoDAO(Context context) {
-            dbTodo = new TodoDatabase(context);
+            dbTodo = new Database(context);
         }
         public void open() {
             db = dbTodo.getWritableDatabase();
@@ -52,22 +52,22 @@ public class TodoModel {
 
         public void createTask(String username, String taskText) {
             ContentValues values = new ContentValues();
-            values.put(TodoDatabase.COLUMN_USERNAME, username);
-            values.put(TodoDatabase.COLUMN_TASK, taskText);
+            values.put(Database.COLUMN_USERNAME, username);
+            values.put(Database.COLUMN_TASK, taskText);
 
-            db.insert(TodoDatabase.TABLE_TODO, null, values);
+            db.insert(Database.TABLE_TODO, null, values);
         }
 
         public List<TodoModel> getAllTasks(String username) {
             List<TodoModel> tasks = new ArrayList<>();
             Cursor cursor = db.query(
-                    TodoDatabase.TABLE_TODO,
+                    Database.TABLE_TODO,
                     null,
-                    TodoDatabase.COLUMN_USERNAME + " = ?",
+                    Database.COLUMN_USERNAME + " = ?",
                     new String[]{username},
                     null,
                     null,
-                    "CASE WHEN " + TodoDatabase.COLUMN_IS_COMPLETED + " = 0 THEN 0 ELSE 1 END, " + TodoDatabase.COLUMN_ID + " DESC"
+                    "CASE WHEN " + Database.COLUMN_IS_COMPLETED + " = 0 THEN 0 ELSE 1 END, " + Database.COLUMN_ID + " DESC"
             );
 
             if (cursor != null) {
@@ -85,21 +85,21 @@ public class TodoModel {
 
         public void updateTask(TodoModel task) {
             ContentValues values = new ContentValues();
-            values.put(TodoDatabase.COLUMN_TASK, task.getTask());
-            values.put(TodoDatabase.COLUMN_IS_COMPLETED, task.isCompleted() ? 1 : 0);
+            values.put(Database.COLUMN_TASK, task.getTask());
+            values.put(Database.COLUMN_IS_COMPLETED, task.isCompleted() ? 1 : 0);
 
-            db.update(TodoDatabase.TABLE_TODO, values, TodoDatabase.COLUMN_ID + " = ?", new String[]{String.valueOf(task.getId())});
+            db.update(Database.TABLE_TODO, values, Database.COLUMN_ID + " = ?", new String[]{String.valueOf(task.getId())});
         }
 
         public void deleteTask(TodoModel task) {
-            db.delete(TodoDatabase.TABLE_TODO, TodoDatabase.COLUMN_ID + " = ?", new String[]{String.valueOf(task.getId())});
+            db.delete(Database.TABLE_TODO, Database.COLUMN_ID + " = ?", new String[]{String.valueOf(task.getId())});
         }
 
         private TodoModel cursorToTask(Cursor cursor) {
-            long id = cursor.getLong(cursor.getColumnIndexOrThrow(TodoDatabase.COLUMN_ID));
-            String username = cursor.getString(cursor.getColumnIndexOrThrow(TodoDatabase.COLUMN_USERNAME));
-            String task = cursor.getString(cursor.getColumnIndexOrThrow(TodoDatabase.COLUMN_TASK));
-            boolean isCompleted = cursor.getInt(cursor.getColumnIndexOrThrow(TodoDatabase.COLUMN_IS_COMPLETED)) > 0;
+            long id = cursor.getLong(cursor.getColumnIndexOrThrow(Database.COLUMN_ID));
+            String username = cursor.getString(cursor.getColumnIndexOrThrow(Database.COLUMN_USERNAME));
+            String task = cursor.getString(cursor.getColumnIndexOrThrow(Database.COLUMN_TASK));
+            boolean isCompleted = cursor.getInt(cursor.getColumnIndexOrThrow(Database.COLUMN_IS_COMPLETED)) > 0;
 
             return new TodoModel(id, username, task, isCompleted);
         }

@@ -22,9 +22,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -62,8 +60,7 @@ public class Home extends AppCompatActivity {
     private FusedLocationProviderClient fusedLocationClient;
     private LinearLayout taskListLayout;
     private TodoModel.TodoDAO todoDAO;
-    private String username;
-    private GestureDetector gestureDetector;
+    private String username,id,name;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -74,16 +71,13 @@ public class Home extends AppCompatActivity {
         sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         editor = sharedPreferences.edit();
 
+        id = sharedPreferences.getString("id","");
         username = sharedPreferences.getString("username", "");
+        name = sharedPreferences.getString("name","");
 
-        if (username != null) {
+        if (name != null) {
             TextView usernameTextView = findViewById(R.id.tekshome);
-            if(username.equals("admin")){
-                username="Yusnar Setiyadi";
-            }else{
-                username="Guest";
-            }
-            usernameTextView.setText("Hello, " + username);
+            usernameTextView.setText("Hello, " + name);
         }
 
         textAbout = findViewById(R.id.textAbout);
@@ -364,14 +358,13 @@ public class Home extends AppCompatActivity {
                 addTaskView(task);
             }
         }
+
     }
 
     private void addTaskView(final TodoModel task) {
-        // Membuat LinearLayout untuk mengelola TextView dan CheckBox secara horizontal
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.HORIZONTAL);
 
-        // TextView untuk menampilkan task
         final TextView taskTextView = new TextView(this);
         taskTextView.setText(task.getTask());
         taskTextView.setTextSize(20);

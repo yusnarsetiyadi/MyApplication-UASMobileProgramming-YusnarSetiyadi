@@ -8,12 +8,22 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.os.Bundle;
+
+import com.my.myapplication_uasmobileprogramming_yusnarsetiyadi.api.ApiConfig;
+import com.my.myapplication_uasmobileprogramming_yusnarsetiyadi.model.UserModel;
+
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class Login extends AppCompatActivity {
 
@@ -77,32 +87,57 @@ public class Login extends AppCompatActivity {
             keynama = username.getText().toString();
             keypass = password.getText().toString();
 
-            if (keynama.equals("")||keypass.equals("")){
-                AlertDialog.Builder builder = new AlertDialog.Builder(Login.this);
-                builder.setMessage
-                        ("username or password cannot be empty").setNegativeButton
-                        ("repeat", null).create().show();
+            validateUsers(keynama,keypass);
+        });
+    }
 
-                username.setText("");
-                password.setText("");
-            } else if (keynama.equals("admin") && keypass.equals("admin")) {
-                Toast.makeText(getApplicationContext(),
-                        "successfully login", Toast.LENGTH_LONG).show();
-                editor.putString("username", keynama);
-                editor.apply();
-                Intent intent = new Intent(Login.this, Home.class);
-                Login.this.startActivity(intent);
-                finish();
-            }else {
-                AlertDialog.Builder builder = new AlertDialog.Builder(Login.this);
-                builder.setMessage
-                        ("incorrect username or password").setNegativeButton
-                        ("repeat", null).create().show();
+    private void validateUsers(String keynama, String keypass){
+        ApiConfig.getRetrofitClient().getAllUsers().enqueue(new Callback<List<UserModel>>() {
+            @Override
+            public void onResponse(Call<List<UserModel>> call, Response<List<UserModel>> response) {
+                if (response.isSuccessful() && response.body() != null){
+                    boolean loginSuccess = false;
+                    String id = "",userName = "",name = "";
+                    for (UserModel user : response.body()) {
+                        if (user.getUsername().equals(keynama) && keypass.equals("password123")) {
+                            loginSuccess = true;
+                            id = user.getId().toString();
+                            userName = user.getUsername();
+                            name = user.getName();
+                            break;
+                        }
+                    }
+                    if (keynama.equals("")||keypass.equals("")){
+                        AlertDialog.Builder builder = new AlertDialog.Builder(Login.this);
+                        builder.setMessage
+                                ("username or password cannot be empty").setNegativeButton
+                                ("repeat", null).create().show();
 
-                username.setText("");
-                password.setText("");
+                        username.setText("");
+                        password.setText("");
+                    }else if (loginSuccess) {
+                        Toast.makeText(getApplicationContext(), "successfully login", Toast.LENGTH_LONG).show();
+                        editor.putString("id",id);
+                        editor.putString("username",userName);
+                        editor.putString("name",name);
+                        editor.apply();
+                        Intent intent = new Intent(Login.this, Home.class);
+                        Login.this.startActivity(intent);
+                        finish();
+                    } else {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(Login.this);
+                        builder.setMessage("incorrect username or password").setNegativeButton("repeat", null).create().show();
+                        username.setText("");
+                        password.setText("");
+                    }
+                }
             }
 
+            @Override
+            public void onFailure(Call<List<UserModel>> call, Throwable throwable) {
+                Log.e("Login", "onFailure getAllUsers: ", throwable);
+                Toast.makeText(getApplicationContext(), "There is an error. Please try again later.", Toast.LENGTH_LONG).show();
+            }
         });
     }
 }
