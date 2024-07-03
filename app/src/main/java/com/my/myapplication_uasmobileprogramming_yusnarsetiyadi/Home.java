@@ -15,20 +15,24 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.location.Location;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.graphics.drawable.Drawable;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -41,9 +45,9 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.my.myapplication_uasmobileprogramming_yusnarsetiyadi.model.TodoModel;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 public class Home extends AppCompatActivity {
 
@@ -57,6 +61,10 @@ public class Home extends AppCompatActivity {
     SharedPreferences.Editor editor;
     private FusedLocationProviderClient fusedLocationClient;
     private LinearLayout taskListLayout;
+    private TodoModel.TodoDAO todoDAO;
+    private String username;
+    private GestureDetector gestureDetector;
+
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +74,7 @@ public class Home extends AppCompatActivity {
         sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         editor = sharedPreferences.edit();
 
-        String username = sharedPreferences.getString("username", "");
+        username = sharedPreferences.getString("username", "");
 
         if (username != null) {
             TextView usernameTextView = findViewById(R.id.tekshome);
@@ -153,7 +161,7 @@ public class Home extends AppCompatActivity {
                 android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(Home.this);
                 builder.setTitle("How to use this ToDo?");
                 builder.setMessage
-                        ("Create todo: click add button\nEdit todo: click task\nDelete todo: hold task").setNegativeButton
+                        ("Create todo: click add button\nEdit todo: click task\nDelete todo: hold task\nComplete todo: click checkbox").setNegativeButton
                         ("ok", null).create().show();
             }
         });
@@ -161,6 +169,9 @@ public class Home extends AppCompatActivity {
         addButton = findViewById(R.id.add_button);
         taskListLayout = findViewById(R.id.task_list_layout);
         sharedPreferences = getSharedPreferences("MyTasks", Context.MODE_PRIVATE);
+
+        todoDAO = new TodoModel.TodoDAO(this);
+        todoDAO.open();
 
         loadTasks();
 
@@ -315,125 +326,170 @@ public class Home extends AppCompatActivity {
     }
 
     private void showAddTaskDialog() {
-        LayoutInflater inflater = LayoutInflater.from(this);
-        View dialogView = inflater.inflate(R.layout.dialog_add_task, null);
-        EditText taskInput = dialogView.findViewById(R.id.task_input);
-        Button saveButton = dialogView.findViewById(R.id.save_button);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Add New Task");
 
-        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
-        builder.setView(dialogView);
-        android.app.AlertDialog dialog = builder.create();
-        dialog.show();
+        EditText input = new EditText(this);
+        builder.setView(input);
 
-        saveButton.setOnClickListener(new View.OnClickListener() {
+        builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                String task = taskInput.getText().toString().trim();
+            public void onClick(DialogInterface dialog, int which) {
+                String task = input.getText().toString();
                 if (!task.isEmpty()) {
-                    if (selectedTask != null) {
-                        // Update task
-                        selectedTask.setText(task);
-                        selectedTask = null; // Reset selectedTask
-                    } else {
-                        // Add new task
-                        addTask(task);
-                    }
-                    dialog.dismiss(); // Close the dialog
-                } else {
-                    Toast.makeText(Home.this, "Please enter a task", Toast.LENGTH_SHORT).show();
+                    saveTask(task);
                 }
             }
         });
-    }
-
-    private void addTask(String task) {
-        TextView textView = new TextView(this);
-        textView.setText(task);
-        textView.setOnClickListener(new View.OnClickListener() {
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                selectedTask = (TextView) v;
-                showAddTaskDialog();
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
             }
         });
-        textView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                taskListLayout.removeView(v);
-                saveTasks();
-                return true;
-            }
-        });
-        textView.setTextSize(20);
-        textView.setTypeface(null, Typeface.BOLD);
-        Drawable leftDrawable = ContextCompat.getDrawable(this, R.drawable.baseline_task_alt_24);
-        if (leftDrawable != null) {
-            leftDrawable.setBounds(0, 0, leftDrawable.getIntrinsicWidth(), leftDrawable.getIntrinsicHeight());
-            textView.setCompoundDrawables(leftDrawable, null, null, null);
-            textView.setCompoundDrawablePadding(getResources().getDimensionPixelOffset(R.dimen.drawable_padding));
-        }
-        textView.setTextColor(Color.WHITE);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        );
-        params.bottomMargin = 50;
-        textView.setLayoutParams(params);
-        taskListLayout.addView(textView);
 
-        saveTasks();
+        builder.show();
     }
 
-    private void saveTasks() {
-        Set<String> taskSet = new HashSet<>();
-        for (int i = 0; i < taskListLayout.getChildCount(); i++) {
-            View view = taskListLayout.getChildAt(i);
-            if (view instanceof TextView) {
-                TextView textView = (TextView) view;
-                taskSet.add(textView.getText().toString());
-            }
-        }
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putStringSet("tasks", taskSet);
-        editor.apply();
+    private void saveTask(String task) {
+        todoDAO.createTask(username,task);
+        loadTasks();
     }
 
     private void loadTasks() {
-        Set<String> taskSet = sharedPreferences.getStringSet("tasks", new HashSet<String>());
-        for (String task : taskSet) {
-            TextView textView = new TextView(this);
-            textView.setText(task);
-            textView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    selectedTask = (TextView) v;
-                    showAddTaskDialog();
-                }
-            });
-            textView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    taskListLayout.removeView(v);
-                    saveTasks();
-                    return true;
-                }
-            });
-            textView.setTextSize(20);
-            textView.setTypeface(null, Typeface.BOLD);
-            Drawable leftDrawable = ContextCompat.getDrawable(this, R.drawable.baseline_task_alt_24);
-            if (leftDrawable != null) {
-                leftDrawable.setBounds(0, 0, leftDrawable.getIntrinsicWidth(), leftDrawable.getIntrinsicHeight());
-                textView.setCompoundDrawables(leftDrawable, null, null, null);
-                textView.setCompoundDrawablePadding(getResources().getDimensionPixelOffset(R.dimen.drawable_padding));
+        taskListLayout.removeAllViews();
+        List<TodoModel> tasks = todoDAO.getAllTasks(username);
+        if (tasks != null) {
+            for (final TodoModel task : tasks) {
+                addTaskView(task);
             }
-            textView.setTextColor(Color.WHITE);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-            );
-            params.bottomMargin = 50;
-            textView.setLayoutParams(params);
-            taskListLayout.addView(textView);
         }
+    }
+
+    private void addTaskView(final TodoModel task) {
+        // Membuat LinearLayout untuk mengelola TextView dan CheckBox secara horizontal
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.HORIZONTAL);
+
+        // TextView untuk menampilkan task
+        final TextView taskTextView = new TextView(this);
+        taskTextView.setText(task.getTask());
+        taskTextView.setTextSize(20);
+        taskTextView.setTypeface(null, Typeface.BOLD);
+        Drawable leftDrawable = ContextCompat.getDrawable(this, R.drawable.baseline_task_alt_24);
+        if (leftDrawable != null) {
+            leftDrawable.setBounds(0, 0, leftDrawable.getIntrinsicWidth(), leftDrawable.getIntrinsicHeight());
+            taskTextView.setCompoundDrawables(leftDrawable, null, null, null);
+            taskTextView.setCompoundDrawablePadding(getResources().getDimensionPixelOffset(R.dimen.drawable_padding));
+        }
+        taskTextView.setTextColor(Color.WHITE);
+        LinearLayout.LayoutParams textParams = new LinearLayout.LayoutParams(
+                0,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                1
+        );
+        textParams.bottomMargin = 50;
+        taskTextView.setLayoutParams(textParams);
+        taskTextView.setTag(task.getId());
+        if (task.isCompleted()) {
+            taskTextView.setPaintFlags(taskTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            taskTextView.setTextColor(Color.GRAY);
+        }
+
+        CheckBox checkBox = new CheckBox(this);
+        LinearLayout.LayoutParams checkBoxParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        checkBoxParams.setMargins(getResources().getDimensionPixelOffset(R.dimen.drawable_padding), 0, 50, 0);
+        checkBox.setLayoutParams(checkBoxParams);
+        checkBox.setChecked(task.isCompleted());
+        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                toggleTaskCompletion(task);
+            }
+        });
+
+        layout.addView(taskTextView);
+        layout.addView(checkBox);
+        taskListLayout.addView(layout);
+
+        taskTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showEditTaskDialog(task);
+            }
+        });
+
+        taskTextView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                showDeleteTaskDialog(task);
+                return true;
+            }
+        });
+    }
+
+    private void showEditTaskDialog(final TodoModel task) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Edit Task");
+
+        final EditText input = new EditText(this);
+        input.setText(task.getTask());
+        builder.setView(input);
+
+        builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String editedTask = input.getText().toString();
+                if (!editedTask.isEmpty()) {
+                    task.setTask(editedTask);
+                    todoDAO.updateTask(task);
+                    loadTasks();
+                }
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+
+    private void showDeleteTaskDialog(final TodoModel task) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Delete Task");
+
+        builder.setMessage("Are you sure you want to delete this task?");
+        builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                todoDAO.deleteTask(task);
+                loadTasks();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.show();
+    }
+
+    private void toggleTaskCompletion(TodoModel task) {
+        task.setCompleted(!task.isCompleted());
+        todoDAO.updateTask(task);
+        loadTasks();
+    }
+
+    @Override
+    protected void onDestroy() {
+        todoDAO.close();
+        super.onDestroy();
     }
 }

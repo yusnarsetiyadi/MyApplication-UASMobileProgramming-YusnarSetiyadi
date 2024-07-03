@@ -48,8 +48,10 @@
         android:layout_width="43dp"
         android:layout_height="40dp"
         android:layout_alignParentBottom="true"
-        android:layout_marginLeft="304dp"
-        android:layout_marginBottom="150dp"
+        android:layout_alignParentStart="true"
+        android:gravity="left"
+        android:layout_marginLeft="18dp"
+        android:layout_marginBottom="18dp"
         android:padding="17dp"
         android:background="@drawable/button_rounded_corner"
         android:drawableLeft="@drawable/info_solid"/>
@@ -59,8 +61,10 @@
         android:layout_width="63dp"
         android:layout_height="60dp"
         android:layout_alignParentBottom="true"
-        android:layout_marginLeft="295dp"
-        android:layout_marginBottom="70dp"
+        android:layout_alignParentEnd="true"
+        android:gravity="right"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="10dp"
         android:padding="10dp"
         android:background="@drawable/button_rounded_corner"
         android:drawableLeft="@drawable/plus_solid"/>
@@ -69,7 +73,7 @@
         android:layout_width="match_parent"
         android:layout_below="@id/tekshome"
         android:layout_marginTop="10dp"
-        android:layout_height="600dp">
+        android:layout_height="576dp">
 
         <LinearLayout
             android:id="@+id/task_list_layout"
@@ -90,7 +94,7 @@
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
         android:textColor="@color/white"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="27dp"
         android:textSize="16sp"
         android:textStyle="bold|italic"
         android:text="@string/about_developer"
