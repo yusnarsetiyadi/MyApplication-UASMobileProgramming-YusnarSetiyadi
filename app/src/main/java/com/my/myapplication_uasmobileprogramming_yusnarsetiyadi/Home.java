@@ -60,6 +60,7 @@ public class Home extends AppCompatActivity {
     private FusedLocationProviderClient fusedLocationClient;
     private LinearLayout taskListLayout;
     private TodoModel.TodoDAO todoDAO;
+    private  TodoModel todoModel;
     private String username,id,name;
 
     @SuppressLint("MissingInflatedId")
@@ -358,7 +359,6 @@ public class Home extends AppCompatActivity {
                 addTaskView(task);
             }
         }
-
     }
 
     private void addTaskView(final TodoModel task) {
