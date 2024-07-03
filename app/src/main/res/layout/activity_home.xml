@@ -50,9 +50,9 @@
         android:layout_alignParentBottom="true"
         android:layout_marginLeft="304dp"
         android:layout_marginBottom="150dp"
-        android:padding="10dp"
+        android:padding="17dp"
         android:background="@drawable/button_rounded_corner"
-        android:drawableLeft="@drawable/gear_solid"/>
+        android:drawableLeft="@drawable/info_solid"/>
 
     <Button
         android:id="@+id/add_button"

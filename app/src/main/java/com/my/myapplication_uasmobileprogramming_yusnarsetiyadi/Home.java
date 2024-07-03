@@ -151,8 +151,9 @@ public class Home extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(Home.this);
+                builder.setTitle("How to use this ToDo?");
                 builder.setMessage
-                        ("Button Add to add, Click task to edit, and Hold task to delete.").setNegativeButton
+                        ("Create todo: click add button\nEdit todo: click task\nDelete todo: hold task").setNegativeButton
                         ("ok", null).create().show();
             }
         });
