@@ -1,4 +1,4 @@
-package com.my.myapplication_utsmobileprogramming_yusnarsetiyadi.ui.theme
+package com.my.myapplication_uasmobileprogramming_yusnarsetiyadi.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

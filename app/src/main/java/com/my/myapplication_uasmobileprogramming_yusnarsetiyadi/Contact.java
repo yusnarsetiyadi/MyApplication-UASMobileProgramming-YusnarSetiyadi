@@ -1,13 +1,10 @@
-package com.my.myapplication_utsmobileprogramming_yusnarsetiyadi;
+package com.my.myapplication_uasmobileprogramming_yusnarsetiyadi;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.Html;
-import android.text.Spanned;
-import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.TextView;
 

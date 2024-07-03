@@ -1,4 +1,4 @@
-package com.my.myapplication_utsmobileprogramming_yusnarsetiyadi;
+package com.my.myapplication_uasmobileprogramming_yusnarsetiyadi;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,6 +31,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.Manifest;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
 public class Home extends AppCompatActivity {
 
     private TextView dropdownTitle;
@@ -42,6 +47,7 @@ public class Home extends AppCompatActivity {
     String latitude, longitude;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
+    private FusedLocationProviderClient fusedLocationClient;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -154,26 +160,35 @@ public class Home extends AppCompatActivity {
     }
 
     private void checkPermissionAndOpenMaps() {
-        if (ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
             return;
         }
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        if (location != null) {
+                            double latitude = location.getLatitude();
+                            double longitude = location.getLongitude();
+                            openMapsDialog(latitude, longitude);
+                        } else {
+                            Toast.makeText(Home.this, "Location not available", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(Home.this, "Failed to get location", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
 
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        Location location = null;
-        try {
-            location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        } catch (SecurityException e) {
-            e.printStackTrace();
-        }
-
-        if (location != null) {
-            latitude = String.valueOf(location.getLatitude());
-            longitude = String.valueOf(location.getLongitude());
-        } else {
-            Toast.makeText(Home.this, "Location not available", Toast.LENGTH_SHORT).show();
-        }
-
+    private void openMapsDialog(double latitude, double longitude) {
         LayoutInflater inflater = LayoutInflater.from(this);
         View dialogView = inflater.inflate(R.layout.maps_dialog_input, null);
 
@@ -186,8 +201,8 @@ public class Home extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 String dst = inputDst.getText().toString();
 
-                Uri uri = Uri.parse("https://www.google.com/maps/dir/"+latitude+","+longitude+"/"+dst);
-                Intent intent = new Intent(Intent.ACTION_VIEW,uri);
+                Uri uri = Uri.parse("https://www.google.com/maps/dir/" + latitude + "," + longitude + "/" + dst);
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                 intent.setPackage("com.google.android.apps.maps");
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);

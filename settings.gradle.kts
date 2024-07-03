@@ -13,6 +13,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "My Application - UTS Mobile Programming - Yusnar Setiyadi"
+rootProject.name = "My Application - UAS Mobile Programming - Yusnar Setiyadi"
 include(":app")
  

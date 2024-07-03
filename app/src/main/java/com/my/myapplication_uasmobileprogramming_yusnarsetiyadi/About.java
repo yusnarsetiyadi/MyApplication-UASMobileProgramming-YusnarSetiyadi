@@ -1,4 +1,4 @@
-package com.my.myapplication_utsmobileprogramming_yusnarsetiyadi;
+package com.my.myapplication_uasmobileprogramming_yusnarsetiyadi;
 
 import androidx.appcompat.app.AppCompatActivity;
 

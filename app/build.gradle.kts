@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.my.myapplication_utsmobileprogramming_yusnarsetiyadi"
+    namespace = "com.my.myapplication_uasmobileprogramming_yusnarsetiyadi"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.my.myapplication_utsmobileprogramming_yusnarsetiyadi"
+        applicationId = "com.my.myapplication_uasmobileprogramming_yusnarsetiyadi"
         minSdk = 24
         targetSdk = 33
         versionCode = 1
@@ -70,4 +70,5 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     implementation("androidx.cardview:cardview:1.0.0")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
 }
