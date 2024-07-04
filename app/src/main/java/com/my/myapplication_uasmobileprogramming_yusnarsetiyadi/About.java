@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 public class About extends AppCompatActivity {
     SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,14 +55,15 @@ public class About extends AppCompatActivity {
         super.onBackPressed();
 
         sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        editor = sharedPreferences.edit();
 
         if (sharedPreferences.contains("username")) {
             Intent intent = new Intent(About.this, Home.class);
-            startActivity(intent);
+            About.this.startActivity(intent);
             finish();
         }else{
             Intent intent = new Intent(About.this, Login.class);
-            startActivity(intent);
+            About.this.startActivity(intent);
             finish();
         }
     }

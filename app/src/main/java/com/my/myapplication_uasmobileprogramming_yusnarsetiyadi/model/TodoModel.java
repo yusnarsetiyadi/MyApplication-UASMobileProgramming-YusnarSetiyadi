@@ -58,6 +58,15 @@ public class TodoModel {
             db.insert(Database.TABLE_TODO, null, values);
         }
 
+        public void createTaskFromAPI(String username, String taskText, boolean isCompleted) {
+            ContentValues values = new ContentValues();
+            values.put(Database.COLUMN_USERNAME, username);
+            values.put(Database.COLUMN_TASK, taskText);
+            values.put(Database.COLUMN_IS_COMPLETED,isCompleted);
+
+            db.insert(Database.TABLE_TODO, null, values);
+        }
+
         public List<TodoModel> getAllTasks(String username) {
             List<TodoModel> tasks = new ArrayList<>();
             Cursor cursor = db.query(

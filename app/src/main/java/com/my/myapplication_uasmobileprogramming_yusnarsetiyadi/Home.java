@@ -43,13 +43,23 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.my.myapplication_uasmobileprogramming_yusnarsetiyadi.api.ApiConfigNstack;
+import com.my.myapplication_uasmobileprogramming_yusnarsetiyadi.model.ApiTodoModel;
+import com.my.myapplication_uasmobileprogramming_yusnarsetiyadi.model.ResponseApiTodoModel;
+import com.my.myapplication_uasmobileprogramming_yusnarsetiyadi.model.ResponseListApiTodoModel;
 import com.my.myapplication_uasmobileprogramming_yusnarsetiyadi.model.TodoModel;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class Home extends AppCompatActivity {
 
-    private TextView dropdownTitle, textAbout, selectedTask;
+    private TextView dropdownTitle, textAbout, textSyncData;
     private ListView dropdownListView;
     private Button addButton, guideButton;
     private static final int ACTIVITY_REQUEST_CODE = 1000;
@@ -60,9 +70,7 @@ public class Home extends AppCompatActivity {
     private FusedLocationProviderClient fusedLocationClient;
     private LinearLayout taskListLayout;
     private TodoModel.TodoDAO todoDAO;
-    private  TodoModel todoModel;
     private String username,id,name;
-
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,11 +83,8 @@ public class Home extends AppCompatActivity {
         id = sharedPreferences.getString("id","");
         username = sharedPreferences.getString("username", "");
         name = sharedPreferences.getString("name","");
-
-        if (name != null) {
-            TextView usernameTextView = findViewById(R.id.tekshome);
-            usernameTextView.setText("Hello, " + name);
-        }
+        TextView usernameTextView = findViewById(R.id.tekshome);
+        usernameTextView.setText("Hello, " + name);
 
         textAbout = findViewById(R.id.textAbout);
         textAbout.setOnClickListener(new View.OnClickListener() {
@@ -94,7 +99,7 @@ public class Home extends AppCompatActivity {
         dropdownTitle = findViewById(R.id.dropdownTitle);
         dropdownListView = findViewById(R.id.dropdownListView);
 
-        String[] items = {"Cam", "Maps", "Logout"};
+        String[] items = {"My Todos","Camera", "GMaps", "Logout"};
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items) {
             @NonNull
             @Override
@@ -125,16 +130,26 @@ public class Home extends AppCompatActivity {
 
         dropdownListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long ids) {
                 String selectedItem = adapter.getItem(position);
-                if (selectedItem=="Cam"){
+                if (selectedItem=="Camera"){
                     dropdownListView.setVisibility(View.GONE);
                     setDrawableLeft(R.drawable.baseline_menu_24);
                     checkPermissionAndOpenCamera();
-                }else if (selectedItem=="Maps"){
+                }else if (selectedItem=="GMaps"){
                     dropdownListView.setVisibility(View.GONE);
                     setDrawableLeft(R.drawable.baseline_menu_24);
                     checkPermissionAndOpenMaps();
+                }else if (selectedItem=="My Todos"){
+                    dropdownListView.setVisibility(View.GONE);
+                    setDrawableLeft(R.drawable.baseline_menu_24);
+                    editor.putString("id",id);
+                    editor.putString("username",username);
+                    editor.putString("name",name);
+                    editor.apply();
+                    Intent intent = new Intent(Home.this, MyTodos.class);
+                    Home.this.startActivity(intent);
+                    finish();
                 }else if (selectedItem=="Logout"){
                     dropdownListView.setVisibility(View.GONE);
                     setDrawableLeft(R.drawable.baseline_menu_24);
@@ -161,21 +176,29 @@ public class Home extends AppCompatActivity {
             }
         });
 
-        addButton = findViewById(R.id.add_button);
-        taskListLayout = findViewById(R.id.task_list_layout);
         sharedPreferences = getSharedPreferences("MyTasks", Context.MODE_PRIVATE);
+        taskListLayout = findViewById(R.id.task_list_layout);
 
         todoDAO = new TodoModel.TodoDAO(this);
         todoDAO.open();
 
-        loadTasks();
-
+        addButton = findViewById(R.id.add_button);
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showAddTaskDialog();
             }
         });
+
+        textSyncData = findViewById(R.id.syncData);
+        textSyncData.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                syncDataLocal();
+            }
+        });
+
+        loadTasks();
     }
 
     private void checkPermissionAndOpenCamera() {
@@ -484,5 +507,94 @@ public class Home extends AppCompatActivity {
     protected void onDestroy() {
         todoDAO.close();
         super.onDestroy();
+    }
+
+    private void syncDataLocal(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Sync Task Data");
+
+        builder.setMessage("Are you sure you want to sync all task?");
+        builder.setPositiveButton("Sync", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                List<String> titleExist = new ArrayList<>();
+                fetchDataApi().thenAccept(response -> {
+                    for(ApiTodoModel todoModel : response.getItems()){
+                        titleExist.add(todoModel.getTitle());
+                    }
+                    List<TodoModel> tasks = todoDAO.getAllTasks(username);
+                    if (tasks != null) {
+                        for (final TodoModel task : tasks) {
+                            String title = task.getUsername()+"_"+task.getId();
+                            if (!titleExist.contains(title)){
+                                ApiConfigNstack.getRetrofitClient().createTodo(new ApiTodoModel(null,title,task.getTask(),task.isCompleted())).enqueue(new Callback<ResponseApiTodoModel>() {
+                                    @Override
+                                    public void onResponse(Call<ResponseApiTodoModel> call, Response<ResponseApiTodoModel> response) {
+                                        if(response.isSuccessful()&&response.body()!=null){
+                                            Log.e("Home", response.message(), null);
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<ResponseApiTodoModel> call, Throwable throwable) {
+                                        Log.e("Home", "onFailure createTodo: ", throwable);
+                                        Toast.makeText(getApplicationContext(), "There is an error or connection lost. Please try again later.", Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }).exceptionally(throwable -> {
+                    Log.e("Home", "onFailure fetchTodoFromApi: ", throwable);
+                    Toast.makeText(getApplicationContext(), "There is an error or connection lost. Please try again later.", Toast.LENGTH_LONG).show();
+                    return null;
+                });
+                Toast.makeText(getApplicationContext(), "Sync data successfully.", Toast.LENGTH_LONG).show();
+                loadTasks();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.show();
+    }
+
+    private CompletableFuture<ResponseListApiTodoModel> fetchDataApi(){
+        CompletableFuture<ResponseListApiTodoModel> future = new CompletableFuture<>();
+        ApiConfigNstack.getRetrofitClient().getAllTodos(1,10).enqueue(new Callback<ResponseListApiTodoModel>() {
+            @Override
+            public void onResponse(Call<ResponseListApiTodoModel> call, Response<ResponseListApiTodoModel> response) {
+                if(response.isSuccessful()&&response.body()!=null){
+                    ApiConfigNstack.getRetrofitClient().getAllTodos(1,response.body().getMeta().getTotal_items()).enqueue(new Callback<ResponseListApiTodoModel>() {
+                        @Override
+                        public void onResponse(Call<ResponseListApiTodoModel> call, Response<ResponseListApiTodoModel> response) {
+                            if (response.isSuccessful() && response.body() != null) {
+                                future.complete(response.body());
+                            } else {
+                                future.completeExceptionally(new Exception("Response unsuccessful or body is null"));
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ResponseListApiTodoModel> call, Throwable throwable) {
+                            Log.e("Home", "onFailure getAllTodos: ", throwable);
+                            Toast.makeText(getApplicationContext(), "There is an error or connection lost. Please try again later.", Toast.LENGTH_LONG).show();
+                            future.completeExceptionally(throwable);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseListApiTodoModel> call, Throwable throwable) {
+                Log.e("Home", "onFailure getAllTodos: ", throwable);
+                Toast.makeText(getApplicationContext(), "There is an error or connection lost. Please try again later.", Toast.LENGTH_LONG).show();
+                future.completeExceptionally(throwable);
+            }
+        });
+        return future;
     }
 }

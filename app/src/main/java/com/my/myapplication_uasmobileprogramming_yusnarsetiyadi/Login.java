@@ -7,7 +7,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -16,7 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.os.Bundle;
 
-import com.my.myapplication_uasmobileprogramming_yusnarsetiyadi.api.ApiConfig;
+import com.my.myapplication_uasmobileprogramming_yusnarsetiyadi.api.ApiConfigJsonplace;
 import com.my.myapplication_uasmobileprogramming_yusnarsetiyadi.model.UserModel;
 
 import java.util.List;
@@ -92,7 +91,7 @@ public class Login extends AppCompatActivity {
     }
 
     private void validateUsers(String keynama, String keypass){
-        ApiConfig.getRetrofitClient().getAllUsers().enqueue(new Callback<List<UserModel>>() {
+        ApiConfigJsonplace.getRetrofitClient().getAllUsers().enqueue(new Callback<List<UserModel>>() {
             @Override
             public void onResponse(Call<List<UserModel>> call, Response<List<UserModel>> response) {
                 if (response.isSuccessful() && response.body() != null){
@@ -136,7 +135,7 @@ public class Login extends AppCompatActivity {
             @Override
             public void onFailure(Call<List<UserModel>> call, Throwable throwable) {
                 Log.e("Login", "onFailure getAllUsers: ", throwable);
-                Toast.makeText(getApplicationContext(), "There is an error. Please try again later.", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "There is an error or connection lost. Please try again later.", Toast.LENGTH_LONG).show();
             }
         });
     }
