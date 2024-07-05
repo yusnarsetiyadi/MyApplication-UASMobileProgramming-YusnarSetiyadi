@@ -205,8 +205,15 @@ public class MyTodos extends AppCompatActivity {
                                         if (response.isSuccessful() && response.body() != null) {
                                             for (final ApiTodoModel apiTodoModel : response.body().getItems()){
                                                 if (apiTodoModel.getTitle().contains(username)){
+                                                    int index = apiTodoModel.getTitle().lastIndexOf('_');
+                                                    String resultId = "";
+                                                    if (index != -1 && index < apiTodoModel.getTitle().length() - 1) {
+                                                        resultId = apiTodoModel.getTitle().substring(index + 1);
+                                                    }
                                                     if (!titleExist.contains(apiTodoModel.getTitle())){
-                                                        todoDAO.createTaskFromAPI(username,apiTodoModel.getDescription(),apiTodoModel.isIs_completed());
+                                                        todoDAO.createTaskFromAPI(Long.valueOf(resultId),username,apiTodoModel.getDescription(),apiTodoModel.isIs_completed());
+                                                    }else{
+                                                        todoDAO.updateTaskFromAPI(Long.valueOf(resultId),apiTodoModel.getDescription(),apiTodoModel.isIs_completed());
                                                     }
                                                 }
                                             }

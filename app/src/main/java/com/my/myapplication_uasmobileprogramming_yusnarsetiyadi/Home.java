@@ -50,7 +50,9 @@ import com.my.myapplication_uasmobileprogramming_yusnarsetiyadi.model.ResponseLi
 import com.my.myapplication_uasmobileprogramming_yusnarsetiyadi.model.TodoModel;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import retrofit2.Call;
@@ -518,9 +520,13 @@ public class Home extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 List<String> titleExist = new ArrayList<>();
+                Map<String, String> titleMap = new HashMap<>();
                 fetchDataApi().thenAccept(response -> {
                     for(ApiTodoModel todoModel : response.getItems()){
-                        titleExist.add(todoModel.getTitle());
+                        if (todoModel.getTitle().contains(username)){
+                            titleExist.add(todoModel.getTitle());
+                            titleMap.put(todoModel.getTitle(),todoModel.getId());
+                        }
                     }
                     List<TodoModel> tasks = todoDAO.getAllTasks(username);
                     if (tasks != null) {
@@ -538,6 +544,20 @@ public class Home extends AppCompatActivity {
                                     @Override
                                     public void onFailure(Call<ResponseApiTodoModel> call, Throwable throwable) {
                                         Log.e("Home", "onFailure createTodo: ", throwable);
+                                        Toast.makeText(getApplicationContext(), "There is an error or connection lost. Please try again later.", Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                            }else{
+                                String id = titleMap.get(title);
+                                ApiConfigNstack.getRetrofitClient().updateTodo(id,new ApiTodoModel(id,title,task.getTask(),task.isCompleted())).enqueue(new Callback<ResponseApiTodoModel>() {
+                                    @Override
+                                    public void onResponse(Call<ResponseApiTodoModel> call, Response<ResponseApiTodoModel> response) {
+                                        Log.e("Home", response.message(), null);
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<ResponseApiTodoModel> call, Throwable throwable) {
+                                        Log.e("Home", "onFailure updateTodo: ", throwable);
                                         Toast.makeText(getApplicationContext(), "There is an error or connection lost. Please try again later.", Toast.LENGTH_LONG).show();
                                     }
                                 });

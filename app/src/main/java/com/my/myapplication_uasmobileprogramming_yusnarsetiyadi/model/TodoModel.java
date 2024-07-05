@@ -58,8 +58,9 @@ public class TodoModel {
             db.insert(Database.TABLE_TODO, null, values);
         }
 
-        public void createTaskFromAPI(String username, String taskText, boolean isCompleted) {
+        public void createTaskFromAPI(long id, String username, String taskText, boolean isCompleted) {
             ContentValues values = new ContentValues();
+            values.put(Database.COLUMN_ID,id);
             values.put(Database.COLUMN_USERNAME, username);
             values.put(Database.COLUMN_TASK, taskText);
             values.put(Database.COLUMN_IS_COMPLETED,isCompleted);
@@ -98,6 +99,14 @@ public class TodoModel {
             values.put(Database.COLUMN_IS_COMPLETED, task.isCompleted() ? 1 : 0);
 
             db.update(Database.TABLE_TODO, values, Database.COLUMN_ID + " = ?", new String[]{String.valueOf(task.getId())});
+        }
+
+        public void updateTaskFromAPI(long id, String task, boolean is_completed) {
+            ContentValues values = new ContentValues();
+            values.put(Database.COLUMN_TASK, task);
+            values.put(Database.COLUMN_IS_COMPLETED, is_completed ? 1 : 0);
+
+            db.update(Database.TABLE_TODO, values, Database.COLUMN_ID + " = ?", new String[]{String.valueOf(id)});
         }
 
         public void deleteTask(TodoModel task) {
