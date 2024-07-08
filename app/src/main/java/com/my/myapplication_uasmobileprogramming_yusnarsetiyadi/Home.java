@@ -519,6 +519,7 @@ public class Home extends AppCompatActivity {
         builder.setPositiveButton("Sync", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                // add and update todo
                 List<String> titleExist = new ArrayList<>();
                 Map<String, String> titleMap = new HashMap<>();
                 fetchDataApi().thenAccept(response -> {
@@ -569,6 +570,69 @@ public class Home extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "There is an error or connection lost. Please try again later.", Toast.LENGTH_LONG).show();
                     return null;
                 });
+
+                // delete todo
+                List<String> titleLocalExist = new ArrayList<>();
+                fetchDataLocal().thenAccept(response -> {
+                    for(final TodoModel todoModel : response){
+                        titleLocalExist.add(todoModel.getUsername()+"_"+todoModel.getId());
+                    }
+                    ApiConfigNstack.getRetrofitClient().getAllTodos(1,10).enqueue(new Callback<ResponseListApiTodoModel>() {
+                        @Override
+                        public void onResponse(Call<ResponseListApiTodoModel> call, Response<ResponseListApiTodoModel> response) {
+                            if(response.isSuccessful()&&response.body()!=null){
+                                ApiConfigNstack.getRetrofitClient().getAllTodos(1,response.body().getMeta().getTotal_items()).enqueue(new Callback<ResponseListApiTodoModel>() {
+                                    @Override
+                                    public void onResponse(Call<ResponseListApiTodoModel> call, Response<ResponseListApiTodoModel> response) {
+                                        if (response.isSuccessful() && response.body() != null) {
+                                            for (final ApiTodoModel apiTodoModel : response.body().getItems()){
+                                                if (apiTodoModel.getTitle().contains(username)){
+                                                    int index = apiTodoModel.getTitle().lastIndexOf('_');
+                                                    String resultId = "";
+                                                    if (index != -1 && index < apiTodoModel.getTitle().length() - 1) {
+                                                        resultId = apiTodoModel.getTitle().substring(index + 1);
+                                                    }
+                                                    if (!titleLocalExist.contains(apiTodoModel.getTitle())){
+                                                        ApiConfigNstack.getRetrofitClient().deleteTodo(apiTodoModel.getId()).enqueue(new Callback<ResponseApiTodoModel>() {
+                                                            @Override
+                                                            public void onResponse(Call<ResponseApiTodoModel> call, Response<ResponseApiTodoModel> response) {
+                                                                if(response.isSuccessful()&&response.body()!=null){
+                                                                    Log.e("Home", response.message(), null);
+                                                                }
+                                                            }
+
+                                                            @Override
+                                                            public void onFailure(Call<ResponseApiTodoModel> call, Throwable throwable) {
+                                                                Log.e("Home", "onFailure deleteTodo: ", throwable);
+                                                                Toast.makeText(getApplicationContext(), "There is an error or connection lost. Please try again later.", Toast.LENGTH_LONG).show();
+                                                            }
+                                                        });
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<ResponseListApiTodoModel> call, Throwable throwable) {
+                                        Log.e("MyTodos", "onFailure getAllTodos: ", throwable);
+                                        Toast.makeText(getApplicationContext(), "There is an error or connection lost. Please try again later.", Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ResponseListApiTodoModel> call, Throwable throwable) {
+                            Log.e("MyTodos", "onFailure getAllTodos: ", throwable);
+                            Toast.makeText(getApplicationContext(), "There is an error or connection lost. Please try again later.", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }).exceptionally(throwable -> {
+                    Log.e("Home", "onFailure fetchDataLocal: ", throwable);
+                    Toast.makeText(getApplicationContext(), "There is an error or connection lost. Please try again later.", Toast.LENGTH_LONG).show();
+                    return null;
+                });
                 Toast.makeText(getApplicationContext(), "Sync data successfully.", Toast.LENGTH_LONG).show();
                 loadTasks();
             }
@@ -615,6 +679,18 @@ public class Home extends AppCompatActivity {
                 future.completeExceptionally(throwable);
             }
         });
+        return future;
+    }
+
+    private CompletableFuture<List<TodoModel>> fetchDataLocal(){
+        CompletableFuture<List<TodoModel>> future = new CompletableFuture<>();
+
+        List<TodoModel> tasks = todoDAO.getAllTasks(username);
+        if (tasks != null) {
+            future.complete(tasks);
+        }else {
+            future.completeExceptionally(new Exception("Response unsuccessful or body is null"));
+        }
         return future;
     }
 }
