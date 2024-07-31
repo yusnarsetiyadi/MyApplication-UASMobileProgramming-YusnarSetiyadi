@@ -49,6 +49,14 @@ public class About extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        TextView openPdf = findViewById(R.id.openPdf);
+        openPdf.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(About.this, PDFViewerActivity.class);
+                startActivity(intent);
+            }
+        });
     }
     @Override
     public void onBackPressed() {
